@@ -14,25 +14,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.microsphere.configuration.etcd.spring.annotation;
+package io.microsphere.configuration.nacos.spring.annotation;
 
-import io.microsphere.nacos.client.OpenApiVersion;
 import io.microsphere.spring.config.context.annotation.PropertySourceExtensionAttributes;
 import org.springframework.core.env.PropertyResolver;
 
 import java.util.Map;
 
 /**
- * The {@link PropertySourceExtensionAttributes} for {@link NacosPorpertySource}
+ * The {@link PropertySourceExtensionAttributes} for {@link EtcdPropertySource}
  *
  * @author <a href="mailto:mercyblitz@gmail.com">Mercy</a>
- * @see NacosPorpertySource
+ * @see EtcdPropertySource
  * @see PropertySourceExtensionAttributes
  * @since 1.0.0
  */
-public class NacosPropertySourceAttributes extends PropertySourceExtensionAttributes<NacosPorpertySource> {
+public class EtcdPropertySourceAttributes extends PropertySourceExtensionAttributes<EtcdPropertySource> {
 
-    public NacosPropertySourceAttributes(Map<String, Object> another, Class<NacosPorpertySource> annotationType, PropertyResolver propertyResolver) {
+    public EtcdPropertySourceAttributes(Map<String, Object> another, Class<EtcdPropertySource> annotationType, PropertyResolver propertyResolver) {
         super(another, annotationType, propertyResolver);
     }
 
@@ -40,11 +39,11 @@ public class NacosPropertySourceAttributes extends PropertySourceExtensionAttrib
         return getValue();
     }
 
-    public final OpenApiVersion getVersion() {
-        return getEnum("openApiVersion");
+    public final String getTarget() {
+        return getString("target");
     }
 
-    public final String getServerAddress() {
-        return getString("serverAddress");
+    public final String[] getEndpoints() {
+        return getStringArray("endpoints");
     }
 }

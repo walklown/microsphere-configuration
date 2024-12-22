@@ -14,8 +14,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.microsphere.configuration.etcd.spring.annotation;
+package io.microsphere.configuration.nacos.spring.annotation;
 
+import io.microsphere.nacos.client.OpenApiVersion;
 import io.microsphere.spring.config.context.annotation.PropertySourceExtension;
 import io.microsphere.spring.config.env.support.DefaultResourceComparator;
 import org.springframework.context.annotation.Import;
@@ -34,11 +35,11 @@ import java.lang.annotation.Target;
 import java.util.Comparator;
 
 /**
- * The annotation for etcd {@link PropertySource}
+ * The annotation for nacos {@link PropertySource}
  *
- * @author <a href="mailto:mercyblitz@gmail.com">Mercy</a>
- * @see EtcdPropertySourceAttributes
- * @see EtcdPropertySourceLoader
+ * @author <a href="mailto:walklown@gmail.com">Walklown</a>
+ * @see NacosPropertySourceAttributes
+ * @see NacosPropertySourceLoader
  * @since 1.0.0
  */
 @Target(ElementType.TYPE)
@@ -46,11 +47,11 @@ import java.util.Comparator;
 @Inherited
 @Documented
 @PropertySourceExtension
-@Import(EtcdPropertySourceLoader.class)
-public @interface EtcdPropertySource {
+@Import(NacosPropertySourceLoader.class)
+public @interface NacosPorpertySource {
 
     /**
-     * The name of etcd {@link PropertySource}
+     * The name of nacos {@link PropertySource}
      */
     @AliasFor(annotation = PropertySourceExtension.class)
     String name() default "";
@@ -101,7 +102,7 @@ public @interface EtcdPropertySource {
      * Indicate the key(s) of the property source resource(s) to be loaded.
      * <p>The resource format is supported by the specified {@link #factory()}
      * , for example, {@code "/com/myco/app.properties"} or {@code "/path/to/file.xml"}.
-     * <p>The etcd key wildcards (e.g. /*.properties) also are permitted;
+     * <p>The nacos key wildcards (e.g. /*.properties) also are permitted;
      * <p>${...} placeholders will be resolved against any/all property sources already
      * registered with the {@code Environment}.
      * <p>Each key will be added to the enclosing {@code Environment} as its own
@@ -116,7 +117,7 @@ public @interface EtcdPropertySource {
      * Indicate the key(s) of the property source resource(s) to be loaded.
      * <p>The resource format is supported by the specified {@link #factory()}
      * , for example, {@code "/com/myco/app.properties"} or {@code "/path/to/file.xml"}.
-     * <p>The etcd key wildcards (e.g. /*.properties) also are permitted;
+     * <p>The nacos key wildcards (e.g. /*.properties) also are permitted;
      * <p>${...} placeholders will be resolved against any/all property sources already
      * registered with the {@code Environment}.
      * <p>Each key will be added to the enclosing {@code Environment} as its own
@@ -169,16 +170,16 @@ public @interface EtcdPropertySource {
     Class<? extends PropertySourceFactory> factory() default DefaultPropertySourceFactory.class;
 
     /**
-     * The etcd server endpoint(s) using the IPNameResolver.
+     * The nacos server endpoint(s) using the IPNameResolver.
      *
-     * @return the default endpoint : "http://127.0.0.1:2379"
+     * @return the default endpoint : "http://127.0.0.1:8848"
      */
-    String[] endpoints() default {"http://127.0.0.1:2379"};
+    String serverAddress() default "http://127.0.0.1:8848";
 
     /**
-     * The string presenting connection to the etcd target.
+     * The string presenting connection to the nacos target.
      *
      * @return no specific as default
      */
-    String target() default "";
+    OpenApiVersion openApiVersion() default OpenApiVersion.V1;
 }

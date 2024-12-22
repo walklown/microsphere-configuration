@@ -14,9 +14,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.microsphere.configuration.etcd.spring.annotation;
+package io.microsphere.configuration.nacos.spring.annotation;
 
-import io.microsphere.nacos.client.OpenApiVersion;
 import io.microsphere.spring.config.context.annotation.PropertySourceExtension;
 import io.microsphere.spring.config.env.support.DefaultResourceComparator;
 import org.springframework.context.annotation.Import;
@@ -37,9 +36,9 @@ import java.util.Comparator;
 /**
  * The annotation for etcd {@link PropertySource}
  *
- * @author <a href="mailto:walklown@gmail.com">Walklown</a>
- * @see NacosPropertySourceAttributes
- * @see NacosPropertySourceLoader
+ * @author <a href="mailto:mercyblitz@gmail.com">Mercy</a>
+ * @see EtcdPropertySourceAttributes
+ * @see EtcdPropertySourceLoader
  * @since 1.0.0
  */
 @Target(ElementType.TYPE)
@@ -47,8 +46,8 @@ import java.util.Comparator;
 @Inherited
 @Documented
 @PropertySourceExtension
-@Import(NacosPropertySourceLoader.class)
-public @interface NacosPorpertySource {
+@Import(EtcdPropertySourceLoader.class)
+public @interface EtcdPropertySource {
 
     /**
      * The name of etcd {@link PropertySource}
@@ -174,12 +173,12 @@ public @interface NacosPorpertySource {
      *
      * @return the default endpoint : "http://127.0.0.1:2379"
      */
-    String serverAddress() default "http://127.0.0.1:2379";
+    String[] endpoints() default {"http://127.0.0.1:2379"};
 
     /**
      * The string presenting connection to the etcd target.
      *
      * @return no specific as default
      */
-    OpenApiVersion openApiVersion() default OpenApiVersion.V1;
+    String target() default "";
 }

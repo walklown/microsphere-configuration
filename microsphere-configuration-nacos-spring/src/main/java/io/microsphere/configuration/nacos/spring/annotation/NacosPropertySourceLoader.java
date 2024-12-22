@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.microsphere.configuration.etcd.spring.annotation;
+package io.microsphere.configuration.nacos.spring.annotation;
 
 import io.microsphere.nacos.client.NacosClientConfig;
 import io.microsphere.nacos.client.OpenApiVersion;
@@ -38,7 +38,7 @@ import java.util.Map;
 import static io.microsphere.util.ShutdownHookUtils.addShutdownHookCallback;
 
 /**
- * {@link NacosPorpertySource} {@link PropertySource} Loader to load the etcd Configuration:
+ * {@link NacosPorpertySource} {@link PropertySource} Loader to load the nacos Configuration:
  *
  * @author <a href="mailto:walklown@gmail.com">Mercy</a>
  * @since 1.0.0

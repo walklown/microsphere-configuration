@@ -14,11 +14,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.microsphere.configuration.etcd.spring.annotation;
+package io.microsphere.configuration.nacos.spring.annotation;
 
-import io.etcd.jetcd.ByteSequence;
-import io.etcd.jetcd.Client;
-import io.etcd.jetcd.KV;
+import io.microsphere.nacos.client.NacosClientConfig;
+import io.microsphere.nacos.client.OpenApiVersion;
+import io.microsphere.nacos.client.common.OpenApiTemplateClient;
+import io.microsphere.nacos.client.common.config.ConfigClient;
+import io.microsphere.nacos.client.v1.OpenApiNacosClient;
+import io.microsphere.nacos.client.v2.OpenApiNacosClientV2;
 import io.microsphere.spring.config.env.support.JsonPropertySourceFactory;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -33,32 +36,30 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.util.StreamUtils;
 
-import java.nio.charset.StandardCharsets;
-
 import static org.junit.Assert.assertEquals;
 
 /**
- * {@link EtcdPropertySource} Test
+ * {@link NacosPorpertySource} Test
  *
  * @author <a href="mailto:mercyblitz@gmail.com">Mercy</a>
  * @since 1.0.0
  */
 @RunWith(SpringRunner.class)
 @ContextConfiguration(classes = {
-        EtcdPropertySourceTest.class,
-        EtcdPropertySourceTest.Config.class
+        NacosPorpertySourceTest.class,
+        NacosPorpertySourceTest.Config.class
 })
-public class EtcdPropertySourceTest {
+public class NacosPorpertySourceTest {
 
     @Autowired
     private Environment environment;
 
-    private static Client client;
+    private static ConfigClient client;
 
     @BeforeClass
     public static void init() throws Exception {
-        EtcdPropertySource annotation =
-                EtcdPropertySourceTest.Config.class.getAnnotation(EtcdPropertySource.class);
+        NacosPorpertySource annotation =
+                NacosPorpertySourceTest.Config.class.getAnnotation(NacosPorpertySource.class);
 
         client = buildClient(annotation);
 
@@ -66,56 +67,59 @@ public class EtcdPropertySourceTest {
         mockConfig();
     }
 
-    private static Client buildClient(EtcdPropertySource annotation) throws Exception {
-        Client client = Client.builder()
-                .endpoints(annotation.endpoints())
-                .build();
-        return client;
+    private static ConfigClient buildClient(NacosPorpertySource annotation) throws Exception {
+        NacosClientConfig config = new NacosClientConfig();
+        config.setServerAddress(annotation.serverAddress());
+        if (OpenApiVersion.V1.equals(annotation.openApiVersion())) {
+            return new OpenApiNacosClient(config);
+        } else if (OpenApiVersion.V2.equals(annotation.openApiVersion())) {
+            return new OpenApiNacosClientV2(config);
+        } else {
+            throw new RuntimeException("Unsupported nacos open api version " + annotation.openApiVersion());
+        }
     }
 
     private static void mockConfig() throws Exception {
 
         ResourcePatternResolver patternResolver = new PathMatchingResourcePatternResolver();
 
-        Resource[] resources = patternResolver.getResources("classpath:/META-INF/etcd/*.json");
+        Resource[] resources = patternResolver.getResources("classpath:/META-INF/nacos/*.json");
 
         for (Resource resource : resources) {
             // test.json
             String fileName = resource.getFilename();
             String key = fileName;
             byte[] data = StreamUtils.copyToByteArray(resource.getInputStream());
-            writeConfig(key, data);
+            writeConfig(key, new String(data));
         }
     }
 
-    private static void writeConfig(String stringKey, byte[] data) throws Exception {
-        KV kvClient = client.getKVClient();
-        ByteSequence key = ByteSequence.from(stringKey.getBytes());
-        ByteSequence value = ByteSequence.from(data);
-        // put the key-value
-        kvClient.put(key, value).get();
+    private static void writeConfig(String stringKey, String data) throws Exception {
+        client.publishConfigContent("DEFAULT_GROUP", stringKey, data);
     }
 
     @AfterClass
-    public static void destroy() {
-        client.close();
+    public static void destroy() throws Exception {
+        ((OpenApiTemplateClient) client).getOpenApiClient().close();
     }
 
 
     @Test
     public void test() throws Exception {
-        assertEquals("mercyblitz", environment.getProperty("my.name"));
+        assertEquals("microsphere", environment.getProperty("my.name"));
 
-        writeConfig("test.json", "{ \"my.name\": \"Mercy Ma\" }".getBytes(StandardCharsets.UTF_8));
+        writeConfig("test.json", "{ \"my.name\": \"Microsphere\" }");
 
         Thread.sleep(5 * 1000);
 
-        assertEquals("Mercy Ma", environment.getProperty("my.name"));
+        assertEquals("Microsphere", environment.getProperty("my.name"));
     }
 
-    @EtcdPropertySource(
+    @NacosPorpertySource(
             key = "test.json",
-            factory = JsonPropertySourceFactory.class)
+            factory = JsonPropertySourceFactory.class,
+            serverAddress = "http://192.168.0.111:8848",
+            openApiVersion = OpenApiVersion.V2)
     static class Config {
 
     }
